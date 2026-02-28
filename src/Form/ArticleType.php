@@ -3,6 +3,8 @@
 namespace App\Form;
 
 use App\Entity\Article;
+use App\Entity\Categorie;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\AbstractType;
@@ -55,6 +57,14 @@ class ArticleType extends AbstractType
             ->add('enregistrer', SubmitType::class, [
                 'label' => '💾 Enregistrer',
                 'attr' => ['class' => 'btn btn-primary w-100'],
+            ])
+            ->add('categorie', EntityType::class, [
+                'class' => Categorie::class,
+                'choice_label' => 'nom',
+                'label' => 'Categorie',
+                'placeholder' => '-- Choisir une categorie --',
+                'required' => false,
+                'attr' => [ 'class' => 'folm-control' ]
             ])
         ;
     }
