@@ -46,9 +46,10 @@ class Article
     )]
     private ?string $auteur = null;
 
+    // ✅ FIXED HERE
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Assert\NotNull(message: 'La date de création est obligatoire.')]
-    private ?\DateTime $dateCreation = null;
+    private ?\DateTimeImmutable $dateCreation = null;
 
     #[ORM\Column]
     private ?bool $publie = null;
@@ -69,7 +70,6 @@ class Article
     public function setTitre(string $titre): static
     {
         $this->titre = $titre;
-
         return $this;
     }
 
@@ -81,7 +81,6 @@ class Article
     public function setContenu(string $contenu): static
     {
         $this->contenu = $contenu;
-
         return $this;
     }
 
@@ -93,19 +92,19 @@ class Article
     public function setAuteur(string $auteur): static
     {
         $this->auteur = $auteur;
-
         return $this;
     }
 
-    public function getDateCreation(): ?\DateTime
+    // ✅ FIXED RETURN TYPE
+    public function getDateCreation(): ?\DateTimeImmutable
     {
         return $this->dateCreation;
     }
 
-    public function setDateCreation(\DateTime $dateCreation): static
+    // ✅ FIXED PARAM TYPE
+    public function setDateCreation(\DateTimeImmutable $dateCreation): static
     {
         $this->dateCreation = $dateCreation;
-
         return $this;
     }
 
@@ -117,7 +116,6 @@ class Article
     public function setPublie(bool $publie): static
     {
         $this->publie = $publie;
-
         return $this;
     }
 
@@ -129,8 +127,6 @@ class Article
     public function setCategorie(?Categorie $categorie): static
     {
         $this->categorie = $categorie;
-
         return $this;
     }
-
 }
