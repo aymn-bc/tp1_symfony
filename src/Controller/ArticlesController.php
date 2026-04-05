@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ArticlesController extends AbstractController
 {
@@ -23,11 +24,14 @@ final class ArticlesController extends AbstractController
     }
 
     #[Route('/articles/nouveau', name: 'app_article_nouveau')]
+    #[IsGranted('ROLE_USER')]
     public function nouveau(Request $request, EntityManagerInterface $em): Response 
     {
         $article = new Article();
+        $article->setAuteurUser($this->getUser());
+
         $form = $this->createForm(ArticleType::class, $article);
-        
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()){
@@ -53,20 +57,24 @@ final class ArticlesController extends AbstractController
     #[Route('/articles/{id}/modifier', name: 'app_article_modifier', requirements: ['id' => '\d+'])]
     public function modifier(Article $article, Request $request, EntityManagerInterface $em): Response
     {
-        $form = $this->createForm(ArticleType::class, $article);
-        $form->handleRequest($request);
+        if ($article->getAuteurUser() == $this->getUser()){
+            $form = $this->createForm(ArticleType::class, $article);
+            $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
-            
-            $this->addFlash('success', 'Article modifié avec succès !');
-            return $this->redirectToRoute('app_article_detail', ['id' => $article->getId()]);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $em->flush();
+
+                $this->addFlash('success', 'Article modifié avec succès !');
+                return $this->redirectToRoute('app_article_detail', ['id' => $article->getId()]);
+            }
+
+            return $this->render('articles/modifier.html.twig', [
+                'formulaire' => $form,
+                'article' => $article,
+            ]);
+        } else {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas l\'auteur !');
         }
-
-        return $this->render('articles/modifier.html.twig', [
-            'formulaire' => $form,
-            'article' => $article,
-        ]);
     }
 
     #[Route('/articles/{id}/supprimer', name: 'app_article_supprimer', requirements: ['id' => '\d+'], methods: ['POST'])]
